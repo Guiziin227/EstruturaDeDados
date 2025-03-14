@@ -1,6 +1,7 @@
 package a1;
 
 import java.util.*;
+//Testando hashmap
 
 public class Main {
     public static void main(String[] args) {
