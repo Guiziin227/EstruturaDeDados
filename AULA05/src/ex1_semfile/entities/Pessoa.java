@@ -8,7 +8,6 @@ public class Pessoa {
 
     public Pessoa(String nome) {
         this.nome = nome;
-        this.email = null;
     }
 
     public Pessoa() {
@@ -34,7 +33,7 @@ public class Pessoa {
 
         for (Pessoa p : list) {
 
-            if (p.getEmail() != null && p.getEmail().equals(email)) {
+            if (p.getEmail().equals(email)) {
                 email = primeiroNome + "." + caracterDoMeio + ultimoNome + "@ufn.edu.com";
                 break;
             }
