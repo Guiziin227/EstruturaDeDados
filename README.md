@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is part of my studies on data structures using various programming languages such as Java, C#, and Go, with a primary focus on Java. The goal is to understand and implement different data structures, including lists and hash maps, and explore their applications and performance.
+This project is part of my studies on data structures using various programming languages such as Java, C#, and Golang, with a primary focus on Java. The goal is to understand and implement different data structures, including lists and hash maps, and explore their applications and performance.
 
 ## Topics Covered
 
