@@ -1,0 +1,94 @@
+class InscricaoPdfView(LoginRequiredMixin, MembroRequiredMixin, DetailView):
+
+    model = Inscricao
+    
+    def get(self, request, *args, **kwargs):
+        inscricao = self.get_object()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="inscricao_{inscricao.participante.nome}_{inscricao.evento.nome}.pdf"'
+        
+
+        doc = SimpleDocTemplate(response, pagesize=A4)
+        story = []
+        
+
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=18,
+            spaceAfter=30,
+            alignment=TA_CENTER
+        )
+        
+        subtitle_style = ParagraphStyle(
+            'CustomSubtitle',
+            parent=styles['Heading2'],
+            fontSize=14,
+            spaceAfter=12,
+            alignment=TA_LEFT
+        )
+        
+        normal_style = styles['Normal']
+        
+        story.append(Paragraph("COMPROVANTE DE INSCRIÇÃO", title_style))
+        story.append(Spacer(1, 20))
+        
+        story.append(Paragraph("DADOS DO EVENTO", subtitle_style))
+        
+        evento_data = [
+            ['Nome do Evento:', inscricao.evento.nome],
+            ['Coordenador:', inscricao.evento.coordenador.nome if inscricao.evento.coordenador else 'N/A'],
+            ['Instituição:', inscricao.evento.instituicao.nome if inscricao.evento.instituicao else 'N/A'],
+            ['Data de Início:', inscricao.evento.data_inicio.strftime('%d/%m/%Y') if inscricao.evento.data_inicio else 'N/A'],
+            ['Carga Horária:', f"{inscricao.evento.carga_horaria}h" if inscricao.evento.carga_horaria else 'N/A'],
+        ]
+        
+        evento_table = Table(evento_data, colWidths=[2*inch, 4*inch])
+        evento_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('BACKGROUND', (1, 0), (1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        story.append(evento_table)
+        story.append(Spacer(1, 20))
+        
+        story.append(Paragraph("DADOS DO PARTICIPANTE", subtitle_style))
+        
+        participante_data = [
+            ['Nome:', inscricao.participante.nome],
+            ['Email:', inscricao.participante.email if inscricao.participante.email else 'N/A'],
+            ['CPF:', inscricao.participante.cpf if inscricao.participante.cpf else 'N/A'],
+            ['Data de Inscrição:', inscricao.data_hora_inscricao.strftime('%d/%m/%Y às %H:%M') if inscricao.data_hora_inscricao else 'N/A'],
+            ['Status:', 'ATIVA' if inscricao.is_active else 'INATIVA'],
+        ]
+        
+        participante_table = Table(participante_data, colWidths=[2*inch, 4*inch])
+        participante_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.lightgrey),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('BACKGROUND', (1, 0), (1, -1), colors.white),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        
+        story.append(participante_table)
+        story.append(Spacer(1, 30))
+        
+        story.append(Paragraph("Este documento comprova a inscrição no evento acima mencionado.", normal_style))
+        story.append(Spacer(1, 10))
+        story.append(Paragraph(f"Documento gerado em: {inscricao.data_hora_inscricao.strftime('%d/%m/%Y às %H:%M')}", normal_style))
+        
+        doc.build(story)
+        
+        return response
